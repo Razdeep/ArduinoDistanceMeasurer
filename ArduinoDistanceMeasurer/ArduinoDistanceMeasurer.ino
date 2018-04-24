@@ -18,26 +18,80 @@
 *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
 
 //     Instructions
-// Make the following connections
-// @TODO
+// Make the following connections in the Arduino
+// Pin 2 --> D7 of the LCD
+// Pin 3 --> D6 of the LCD
+// Pin 4 --> D5 of the LCD
+// Pin 5 --> D4 of the LCD
+// Pin 11 --> Enable(E)
+// Pin 12 --> Register Select(RS)
+//
 
+#include<string.h>
 #include<LiquidCrystal.h>
-//Init LCD Object
-//Init buzz pin
-//Init pushButton pin
+LiquidCrystal lcd(12,11,5,4,3,2);
+const int BUZZER=-1; //@TODO
+const int PUSH_BUTTON=-1; //@TODO
+const int Con=80; //Contrast
+
+void displayCredits();
+void showLoadingDots(int,int,int);
+void transPrint(const char*,int,int);
 void setup()
 {
-  serial.begin(9600);
+  Serial.begin(9600);
+  analogWrite(6,Con);
+  lcd.begin(16,2);
+  pinMode(BUZZER,OUTPUT);
+  pinMode(PUSH_BUTTON,OUTPUT);
+  displayCredits();
   //Init Serial Monitor
   //Init LCD with dimensions
   //Init Pinmode of Buzzer
   //Init Pinmode of pushButton
   //displayCredits()
-  //beeps if possible
   //calibratingText();
 }
 void loop()
 {
   //init unit
   
+}
+//DEFINITIONS OF CUSTOM FUNCTIONS
+
+void displayCredits()
+{
+  transPrint("DISTANCE",0,0);
+  transPrint("MEASURER",8,1);
+  //sing();
+  delay(1000);
+  lcd.clear();
+  transPrint("by RAJDEEP,",0,0);
+  transPrint("VISHAL, VIPUL",2,1);
+  delay(1000);
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Calibrating");
+  showLoadingDots(4,11,0);
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Calibrating");
+  showLoadingDots(4,11,0);
+}
+void transPrint(const char* str,int col=0,int row=0){
+  lcd.setCursor(col,row);
+  int len=strlen(str);
+  for(int i=0;i<len;i++)
+  {
+    lcd.print(str[i]);
+    delay(100);
+  }
+}
+void showLoadingDots(int n,int col=0,int row=0){
+  lcd.setCursor(col,row);
+  for(int i=0;i<n;i++)
+  {
+    lcd.print(".");
+    delay(300);
+  }
 }
