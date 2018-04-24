@@ -27,12 +27,53 @@
 // Pin 12 --> Register Select(RS)
 //
 
+
+
 #include<string.h>
 #include<LiquidCrystal.h>
 LiquidCrystal lcd(12,11,5,4,3,2);
-const int BUZZER=-1; //@TODO
+const int BUZZER=9;
 const int PUSH_BUTTON=-1; //@TODO
 const int Con=80; //Contrast
+
+// MELODY BEGINS
+#define NOTE_E7  2637
+#define NOTE_G7  3136
+#define NOTE_G6  1568 
+#define NOTE_C7  2093
+int melody[] = {
+  NOTE_E7, NOTE_E7, 0, NOTE_E7,
+  0, NOTE_C7, NOTE_E7, 0,
+  NOTE_G7, 0, 0,  0,
+  NOTE_G6, 0, 0, 0,
+};
+int tempo[] = {
+  12, 12, 12, 12,
+  12, 12, 12, 12,
+  12, 12, 12, 12,
+  12, 12, 12, 12,
+}; 
+void sing() {
+    int size = sizeof(melody) / sizeof(int);
+    for (int thisNote = 0; thisNote < size; thisNote++) {
+      int noteDuration = 1000 / tempo[thisNote];
+      buzz(BUZZER, melody[thisNote], noteDuration);
+      int pauseBetweenNotes = noteDuration * 1.30;
+      delay(pauseBetweenNotes);
+      buzz(BUZZER, 0, noteDuration);
+    }
+}
+void buzz(int targetPin, long frequency, long length) {
+  long delayValue = 1000000 / frequency / 2;
+  long numCycles = frequency * length / 1000;
+  for (long i = 0; i < numCycles; i++) {
+    digitalWrite(targetPin, HIGH);
+    delayMicroseconds(delayValue);
+    digitalWrite(targetPin, LOW);
+    delayMicroseconds(delayValue);
+  }
+}
+// MELODY ENDS
 
 void displayCredits();
 void showLoadingDots(int,int,int);
@@ -45,12 +86,6 @@ void setup()
   pinMode(BUZZER,OUTPUT);
   pinMode(PUSH_BUTTON,OUTPUT);
   displayCredits();
-  //Init Serial Monitor
-  //Init LCD with dimensions
-  //Init Pinmode of Buzzer
-  //Init Pinmode of pushButton
-  //displayCredits()
-  //calibratingText();
 }
 void loop()
 {
@@ -63,7 +98,7 @@ void displayCredits()
 {
   transPrint("DISTANCE",0,0);
   transPrint("MEASURER",8,1);
-  //sing();
+  sing();
   delay(1000);
   lcd.clear();
   transPrint("by RAJDEEP,",0,0);
