@@ -23,18 +23,22 @@
 // Pin 3 --> D6 of the LCD
 // Pin 4 --> D5 of the LCD
 // Pin 5 --> D4 of the LCD
-// Pin 11 --> Enable(E)
-// Pin 12 --> Register Select(RS)
-//
-
+// Pin 11 --> Enable(E) of the LCD
+// Pin 12 --> Register Select(RS) of the LCD
+// Pin 6 --> V0 of the LCD
+// Pin 10 --> Buzzer
+// Pin 9--> Echo of Ultrasonic sensor
+// Pin 8--> Trigger of Ultrasonic sensor
 
 
 #include<string.h>
 #include<LiquidCrystal.h>
 LiquidCrystal lcd(12,11,5,4,3,2);
-const int BUZZER=9;
+const int BUZZER=10;
 const int PUSH_BUTTON=-1; //@TODO
 const int Con=80; //Contrast
+const int ECHO_PIN=9;
+const int TRIG_PIN=8;
 
 // MELODY BEGINS
 #define NOTE_E7  2637
@@ -85,11 +89,37 @@ void setup()
   lcd.begin(16,2);
   pinMode(BUZZER,OUTPUT);
   pinMode(PUSH_BUTTON,OUTPUT);
+  pinMode(TRIG_PIN,OUTPUT);
+  pinMode(ECHO_PIN,INPUT);
   displayCredits();
 }
 void loop()
 {
   //init unit
+  long duration, inches, cm;
+  digitalWrite(BUZZER,LOW);
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  duration = pulseIn(ECHO_PIN, HIGH);
+  inches = microsecondsToInches(duration);
+  cm = microsecondsToCentimeters(duration);
+  
+  if(cm<7)
+  {
+    digitalWrite(BUZZER,HIGH);
+    //delay(100);
+  }
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Distance = ");
+  lcd.print(cm);
+  lcd.print(" cm");
+  //lcd.clear();
+  delay(100);
+  lcd.clear();
   
 }
 //DEFINITIONS OF CUSTOM FUNCTIONS
@@ -118,7 +148,7 @@ void transPrint(const char* str,int col=0,int row=0){
   int len=strlen(str);
   for(int i=0;i<len;i++)
   {
-    lcd.print(str[i]);
+    lcd.print(*(str+i));
     delay(100);
   }
 }
@@ -129,4 +159,21 @@ void showLoadingDots(int n,int col=0,int row=0){
     lcd.print(".");
     delay(300);
   }
+}
+long microsecondsToInches(long microseconds)
+{
+  // According to Parallax's datasheet for the PING))), there are
+  // 73.746 microseconds per inch (i.e. sound travels at 1130 feet per
+  // second).  This gives the distance travelled by the ping, outbound
+  // and return, so we divide by 2 to get the distance of the obstacle.
+  // See: http://www.parallax.com/dl/docs/prod/acc/28015-PING-v1.3.pdf
+  return microseconds / 74 / 2;
+}
+
+long microsecondsToCentimeters(long microseconds)
+{
+  // The speed of sound is 340 m/s or 29 microseconds per centimeter.
+  // The ping travels out and back, so to find the distance of the
+  // object we take half of the distance travelled.
+  return microseconds / 29 / 2;
 }
