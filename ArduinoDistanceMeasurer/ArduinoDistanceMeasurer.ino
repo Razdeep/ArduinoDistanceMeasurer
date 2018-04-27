@@ -27,15 +27,15 @@
 // Pin 12 --> Register Select(RS) of the LCD
 // Pin 6 --> V0 of the LCD
 // Pin 10 --> Buzzer
-// Pin 9--> Echo of Ultrasonic sensor
-// Pin 8--> Trigger of Ultrasonic sensor
-
+// Pin 9 --> Echo of Ultrasonic sensor
+// Pin 8 --> Trigger of Ultrasonic sensor
+// Pin 7 --> One leg of the pushbutton
 
 #include<string.h>
 #include<LiquidCrystal.h>
 LiquidCrystal lcd(12,11,5,4,3,2);
 const int BUZZER=10;
-const int PUSH_BUTTON=-1; //@TODO
+const int PUSH_BUTTON=7; //@TODO
 const int Con=80; //Contrast
 const int ECHO_PIN=9;
 const int TRIG_PIN=8;
@@ -91,11 +91,13 @@ void setup()
   pinMode(PUSH_BUTTON,OUTPUT);
   pinMode(TRIG_PIN,OUTPUT);
   pinMode(ECHO_PIN,INPUT);
+  pinMode(PUSH_BUTTON,INPUT);
   displayCredits();
 }
 void loop()
 {
   //init unit
+  int MODE=0;
   long duration, inches, cm;
   digitalWrite(BUZZER,LOW);
   digitalWrite(TRIG_PIN, LOW);
@@ -112,11 +114,24 @@ void loop()
     digitalWrite(BUZZER,HIGH);
     //delay(100);
   }
+  if(digitalRead(PUSH_BUTTON))
+  {
+    if(MODE==0)
+    ++MODE;
+    else MODE=0;
+  }
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("Distance = ");
-  lcd.print(cm);
-  lcd.print(" cm");
+  if(!MODE)
+  {
+    lcd.print(cm);
+    lcd.print(" cm");
+  }
+  else{
+    lcd.print(inches);
+    lcd.print(" inch");
+  }
   delay(100);
 }
 //DEFINITIONS OF CUSTOM FUNCTIONS
