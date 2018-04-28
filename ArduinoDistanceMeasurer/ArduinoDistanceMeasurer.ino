@@ -88,7 +88,6 @@ void setup()
   analogWrite(6,Con);
   lcd.begin(16,2);
   pinMode(BUZZER,OUTPUT);
-  pinMode(PUSH_BUTTON,OUTPUT);
   pinMode(TRIG_PIN,OUTPUT);
   pinMode(ECHO_PIN,INPUT);
   pinMode(PUSH_BUTTON,INPUT);
